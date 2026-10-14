@@ -187,6 +187,7 @@ var serverArgs struct {
 	BackupBucket       string `flag:"backup-bucket,default=$SETEC_BACKUP_BUCKET,Name of AWS S3 bucket to use for database backups"`
 	BackupBucketRegion string `flag:"backup-bucket-region,default=$SETEC_BACKUP_BUCKET_REGION,AWS region of the backup S3 bucket"`
 	BackupRole         string `flag:"backup-role,default=$SETEC_BACKUP_ROLE,Name of AWS IAM role to assume to write backups"`
+	BackupUsePathStyle bool   `flag:"backup-use-path-style,default=$SETEC_S3_USE_PATH_STYLE,Use path-style addressing for S3 backups"`
 	LoginServer        string `flag:"login-server,default=$SETEC_LOGIN_SERVER,URL of control server to use for tsnet"`
 	Dev                bool   `flag:"dev,Run in developer mode"`
 }
@@ -305,6 +306,7 @@ func runServer(env *command.Env) error {
 		BackupBucket:       serverArgs.BackupBucket,
 		BackupBucketRegion: serverArgs.BackupBucketRegion,
 		BackupAssumeRole:   serverArgs.BackupRole,
+		BackupUsePathStyle: serverArgs.BackupUsePathStyle,
 		Mux:                mux,
 	})
 	if err != nil {
