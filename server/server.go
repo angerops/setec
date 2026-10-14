@@ -84,6 +84,9 @@ type Config struct {
 	// SDK. If BackupAssumeRole is empty, backups are written without
 	// assuming a role.
 	BackupAssumeRole string
+
+	// BackupUsePathStyle enables path-style addressing for S3-compatible stores.
+	BackupUsePathStyle bool
 }
 
 // Server is a secrets HTTP server.
@@ -151,7 +154,7 @@ func New(ctx context.Context, cfg Config) (*Server, error) {
 	}
 
 	if cfg.BackupBucket != "" {
-		s3Client, err := makeS3Client(ctx, cfg.BackupBucketRegion, cfg.BackupBucket, cfg.BackupAssumeRole)
+		s3Client, err := makeS3Client(ctx, cfg.BackupBucketRegion, cfg.BackupBucket, cfg.BackupAssumeRole, cfg.BackupUsePathStyle)
 		if err != nil {
 			return nil, fmt.Errorf("creating backups S3 client: %w", err)
 		}
@@ -174,7 +177,7 @@ func New(ctx context.Context, cfg Config) (*Server, error) {
 	return ret, nil
 }
 
-func makeS3Client(ctx context.Context, region, bucket, assumeRole string) (*s3.Client, error) {
+func makeS3Client(ctx context.Context, region, bucket, assumeRole string, usePathStyle bool) (*s3.Client, error) {
 	cfg, err := config.LoadDefaultConfig(ctx, config.WithRegion(region))
 	if err != nil {
 		return nil, fmt.Errorf("getting ambient AWS credentials: %w", err)
@@ -185,7 +188,9 @@ func makeS3Client(ctx context.Context, region, bucket, assumeRole string) (*s3.C
 		cfg.Credentials = aws.NewCredentialsCache(creds)
 	}
 
-	return s3.NewFromConfig(cfg), nil
+	return s3.NewFromConfig(cfg, func(o *s3.Options) {
+		o.UsePathStyle = usePathStyle
+	}), nil
 }
 
 // Metrics returns a collection of metrics for s. THe caller is responsible for
