@@ -204,6 +204,11 @@ since the last backup.
 
 The uploaded backups are fully encrypted.
 
+S3-compatible storage services such as Garage may require path-style bucket
+addressing. Enable it with `--backup-use-path-style` or
+`SETEC_S3_USE_PATH_STYLE=true`. Set `AWS_ENDPOINT_URL_S3` to the storage
+service's endpoint. Path-style addressing is disabled by default.
+
 ### Audit Logs
 
 While running, the server appends a basic audit log of all secret accesses to a
